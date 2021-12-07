@@ -50,11 +50,10 @@ fn write_file(path: &Path, s: &str) {
 //TODO: Return the input string without vowels.
 fn disemvowel(s: &str) -> String {
     let mut result: String = String::from("");
-    for i in 0..s.len() {
-        let current: char = s.chars().nth(i).unwrap();
+    for current in s.chars() {
         let vowels: Vec<char> = vec!['a','e','i','o','u','A','E','I','O','U'];
         if !vowels.contains(&current){
-            result = result + &current.to_string();
+            result.push(current);
         }
     }
     result
