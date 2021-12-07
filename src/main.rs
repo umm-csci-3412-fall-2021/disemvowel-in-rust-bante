@@ -3,8 +3,11 @@ use std::fs;
 use std::path::Path;
 
 //The following crates are used for testing
-extern crate tempfile; //Creates temp files and directories
-use assert_cmd::prelude::*; // Add methods on commands
+extern crate tempfile;
+
+//Creates temp files and directories
+use assert_cmd::prelude::*;
+// Add methods on commands
 use predicates::prelude::*;
 use std::process::Command; // Run programs // Used for writing assertions
 
@@ -16,6 +19,9 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     //TODO: Panic if not enough arguments are provided
+    if args.len() <= 2 {
+        panic!("Not enough arguments")
+    }
     //Panic should output the string "Not enough arguments"
 
     //TODO:
@@ -23,26 +29,34 @@ fn main() {
     //  * Pass that to disemvowel to remove the vowels
     //  * Write the disemvoweled text using write_file
 
-    // Replace String::from("dummy text") with what you get from read_file
-    let s = String::from("dummy text");
+    let content: String = read_file(Path::new(&args[0]));
 
-    let s_disemvowel = disemvowel(&s);
+
+    let s_disemvowel = disemvowel(&content);
 
     // Use command-line arguments for the name of the file,
     // and s_disemvowel for the text to write out.
-    write_file(Path::new("dummy.txt"), "output string");
+    write_file(Path::new(&args[1]), &s_disemvowel);
 }
 
 fn read_file(path: &Path) -> String {
     fs::read_to_string(path).expect("Could not read the file")
 }
+
 fn write_file(path: &Path, s: &str) {
     fs::write(path, s).expect("Unable to write file");
 }
 
 //TODO: Return the input string without vowels.
 fn disemvowel(s: &str) -> String {
-    String::from(s)
+    let mut result: String = String::from("");
+    for current in s.chars() {
+        let vowels: Vec<char> = vec!['a','e','i','o','u','A','E','I','O','U'];
+        if !vowels.contains(&current){
+            result.push(current);
+        }
+    }
+    result
 }
 
 // Everything from here down is Rust test code. You shouldn't need to
@@ -56,8 +70,10 @@ fn disemvowel(s: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
     mod disemvowel {
         use super::*;
+
         #[test]
         fn hello_world() {
             let input = "Hello, world!";
@@ -111,6 +127,7 @@ mod tests {
     // or the input file isn't readable.
     mod panic_tests {
         use super::*;
+
         #[test]
         fn requires_two_arguments() {
             let mut cmd = Command::cargo_bin("disemvowel-in-rust").unwrap();
@@ -119,6 +136,7 @@ mod tests {
                 .failure()
                 .stderr(predicate::str::contains("Not enough arguments"));
         }
+
         #[test]
         fn requires_read_file() {
             let mut cmd = Command::cargo_bin("disemvowel-in-rust").unwrap();
